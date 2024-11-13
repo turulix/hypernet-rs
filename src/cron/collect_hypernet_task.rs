@@ -6,7 +6,7 @@ use crate::database::hypernet_raffle_model::{
 };
 use anyhow::anyhow;
 use async_trait::async_trait;
-use log::info;
+use log::{debug, info};
 use rfesi::groups::Notification;
 use rfesi::prelude::Esi;
 use serenity::all::{
@@ -149,7 +149,7 @@ async fn handle_character(ctx: &CronAppContext, char: EvECharacterInfo) -> anyho
         .fetch_one(&ctx.postgres)
         .await?;
 
-        info!("Checking raffle {}", raffle_id);
+        debug!("Checking raffle {}", raffle_id);
 
         if let HypernetRaffleStatus::Created = raffle.status {
             let (embed, status) = if newly_expired_raffle_ids.contains(&raffle_id) {
