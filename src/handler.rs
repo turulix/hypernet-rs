@@ -33,8 +33,11 @@ pub async fn event_handler(
                         || interaction.data.custom_id.starts_with("raffle-lost:")
                     {
                         // Handle the win of a raffle
-                        let raffle_id =
-                            interaction.data.custom_id["raffle-won:".len()..].to_string();
+                        let raffle_id = if interaction.data.custom_id.starts_with("raffle-won:") {
+                            &interaction.data.custom_id["raffle-won:".len()..]
+                        } else {
+                            &interaction.data.custom_id["raffle-lost:".len()..]
+                        };
 
                         let raffle: EvEHypernetRaffle = sqlx::query_file_as!(
                             EvEHypernetRaffle,
