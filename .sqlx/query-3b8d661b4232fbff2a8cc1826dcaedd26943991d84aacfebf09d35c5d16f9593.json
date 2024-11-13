@@ -10,7 +10,7 @@
         "Int4",
         "Text",
         "Int4",
-        "Float4",
+        "Float8",
         "Int4",
         {
           "Custom": {

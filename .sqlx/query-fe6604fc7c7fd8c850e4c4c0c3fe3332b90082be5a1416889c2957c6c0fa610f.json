@@ -31,7 +31,7 @@
       {
         "ordinal": 5,
         "name": "ticket_price",
-        "type_info": "Float4"
+        "type_info": "Float8"
       },
       {
         "ordinal": 6,

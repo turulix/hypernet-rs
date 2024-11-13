@@ -35,7 +35,7 @@ pub struct EvEHypernetRaffle {
     pub character_id: i32,
     pub raffle_id: String,
     pub ticket_count: i32,
-    pub ticket_price: f32,
+    pub ticket_price: f64,
     pub type_id: i32,
     pub status: HypernetRaffleStatus,
     pub result: HypernetRaffleResult,

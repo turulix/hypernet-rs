@@ -28,9 +28,9 @@ CREATE TABLE hypernet_raffles
     character_id int references eve_character_info (character_id)   not null,
     raffle_id    text primary key                                   not null,
     ticket_count int                                                not null,
-    ticket_price float4                                             not null,
+    ticket_price float8                                             not null,
     type_id      int                                                not null,
     status       hypernet_raffle_status                             not null,
     result       hypernet_raffle_result                             not null,
     created_at   TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP not null
-)
+);

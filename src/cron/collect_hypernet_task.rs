@@ -249,7 +249,7 @@ async fn build_embed(
         .field(
             "Payout",
             // 95% of the total ticket price. 5% because of tax.
-            (raffle.ticket_count as f32 * raffle.ticket_price * 0.95_f32).separate_with_dots(),
+            (raffle.ticket_count as f64 * raffle.ticket_price * 0.95_f64).separate_with_dots(),
             true,
         )
         .field("Estimated Profit (Win)", "TODO", true)
@@ -290,7 +290,7 @@ fn parse_raffles(
         let ticket_price = parts
             .get("ticket_price")
             .ok_or(anyhow!("Missing ticket_price"))?
-            .parse::<f32>()?;
+            .parse::<f64>()?;
         let ticket_count = parts
             .get("ticket_count")
             .ok_or(anyhow!("Missing ticket_count"))?
