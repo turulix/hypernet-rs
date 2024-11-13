@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE hypernet_raffles SET result = $2 WHERE raffle_id = $1;",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "hypernet_raffle_result",
+            "kind": {
+              "Enum": [
+                "None",
+                "Winner",
+                "Loser"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8adefa0254252e014c2ef74a3de8b59fe70614e1b6996f703c7894fbe63e9f36"
+}

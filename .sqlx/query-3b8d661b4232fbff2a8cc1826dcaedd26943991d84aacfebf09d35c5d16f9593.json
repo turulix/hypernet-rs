@@ -1,0 +1,45 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO hypernet_raffles(location_id, owner_id, character_id, raffle_id, ticket_count, ticket_price, type_id,\r\n                             status, result, created_at)\r\nVALUES ($1,\r\n        $2,\r\n        $3,\r\n        $4,\r\n        $5,\r\n        $6,\r\n        $7,\r\n        $8,\r\n        $9,\r\n        $10)\r\non conflict do nothing;",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4",
+        "Text",
+        "Int4",
+        "Float4",
+        "Int4",
+        {
+          "Custom": {
+            "name": "hypernet_raffle_status",
+            "kind": {
+              "Enum": [
+                "Created",
+                "Expired",
+                "Finished"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "hypernet_raffle_result",
+            "kind": {
+              "Enum": [
+                "None",
+                "Winner",
+                "Loser"
+              ]
+            }
+          }
+        },
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3b8d661b4232fbff2a8cc1826dcaedd26943991d84aacfebf09d35c5d16f9593"
+}

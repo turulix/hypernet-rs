@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE hypernet_raffles SET status = $2 WHERE raffle_id = $1;",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "hypernet_raffle_status",
+            "kind": {
+              "Enum": [
+                "Created",
+                "Expired",
+                "Finished"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4901ff7343405320831f35ceb015a030f42cc403e01d50fb0a0cf8fa6ebe8a64"
+}

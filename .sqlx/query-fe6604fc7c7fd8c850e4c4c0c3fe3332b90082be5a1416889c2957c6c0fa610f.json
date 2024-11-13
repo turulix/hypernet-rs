@@ -1,0 +1,98 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT location_id,\r\n       owner_id,\r\n       character_id,\r\n       raffle_id,\r\n       ticket_count,\r\n       ticket_price,\r\n       type_id,\r\n       status as \"status: HypernetRaffleStatus\",\r\n       result as \"result: HypernetRaffleResult\",\r\n       created_at\r\nFROM hypernet_raffles\r\nWHERE raffle_id = $1;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "location_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "owner_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "character_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "raffle_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "ticket_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "ticket_price",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 6,
+        "name": "type_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "status: HypernetRaffleStatus",
+        "type_info": {
+          "Custom": {
+            "name": "hypernet_raffle_status",
+            "kind": {
+              "Enum": [
+                "Created",
+                "Expired",
+                "Finished"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "result: HypernetRaffleResult",
+        "type_info": {
+          "Custom": {
+            "name": "hypernet_raffle_result",
+            "kind": {
+              "Enum": [
+                "None",
+                "Winner",
+                "Loser"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "fe6604fc7c7fd8c850e4c4c0c3fe3332b90082be5a1416889c2957c6c0fa610f"
+}
