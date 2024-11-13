@@ -1,0 +1,21 @@
+[package]
+name = "evehypernet-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.41.1", features = ["full"] }
+serenity = { version = "0.12.2", features = ["full"] }
+log = "0.4.22"
+env_logger = "0.11.5"
+poise = "0.6.1"
+rfesi = { version = "0.45.1", features = ["rustls-tls", "validate_jwt", "random_state"], default-features = false }
+sqlx = { version = "0.8.2", features = ["postgres", "runtime-tokio-rustls", "chrono", "bigdecimal"] }
+chrono = { version = "0.4.38", features = ["serde"] }
+serde = { version = "1.0.198", features = ["derive"] }
+serde_json = {version = "1.0.132"}
+anyhow = "1.0.93"
+actix-web = "4.9.0"
+rand = "0.8.5"
+async-trait = "0.1.83"
+thousands = "0.2.0"
