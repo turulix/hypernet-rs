@@ -45,7 +45,6 @@ impl CronTask for CollectHypernetTask {
 
         // Prices for each type_id, (sell, buy)
         let mut prices: HashMap<i32, (Option<f64>, Option<f64>)> = HashMap::new();
-
         let hypernet_core_orders = loop {
             let hypernet_core_orders = ctx
                 .esi
@@ -72,6 +71,16 @@ impl CronTask for CollectHypernetTask {
             .map(|x| x.price)
             .max_by(|a, b| a.partial_cmp(b).unwrap());
 
+        let plex_price = ctx
+            .esi
+            .group_market()
+            .get_market_prices()
+            .await?
+            .iter()
+            .find(|x| x.type_id == 44992)
+            .map(|x| x.average_price)
+            .flatten();
+
         for char in all_chars {
             let res = handle_character(
                 &ctx,
@@ -79,6 +88,7 @@ impl CronTask for CollectHypernetTask {
                 &mut prices,
                 &hypernet_core_sell_price,
                 &hypernet_core_buy_price,
+                &plex_price,
             )
             .await;
             if let Err(e) = res {
@@ -96,6 +106,7 @@ async fn handle_character(
     price_cache: &mut HashMap<i32, (Option<f64>, Option<f64>)>,
     hypernet_core_sell_price: &Option<f64>,
     hypernet_core_buy_price: &Option<f64>,
+    plex_price: &Option<f64>,
 ) -> anyhow::Result<()> {
     let mut esi = ctx.esi.clone();
     let notification_channel_id: Option<i64> = sqlx::query_file_scalar!(
@@ -197,6 +208,7 @@ async fn handle_character(
             prices.1,
             hypernet_core_buy_price.clone(),
             hypernet_core_sell_price.clone(),
+            plex_price.clone()
         );
         transaction.execute(query).await?;
     }
@@ -419,6 +431,7 @@ fn parse_raffles(
             sell_price: None,
             hypercore_sell_price: None,
             hypercore_buy_price: None,
+            plex_price: None,
             status: HypernetRaffleStatus::Created,
             result: HypernetRaffleResult::None,
             created_at: chrono::DateTime::from_str(&raffle.timestamp)?,

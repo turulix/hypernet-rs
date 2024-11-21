@@ -41,6 +41,7 @@ pub struct EvEHypernetRaffle {
     pub buy_price: Option<f64>,
     pub hypercore_buy_price: Option<f64>,
     pub hypercore_sell_price: Option<f64>,
+    pub plex_price: Option<f64>,
     pub status: HypernetRaffleStatus,
     pub result: HypernetRaffleResult,
     pub created_at: chrono::DateTime<Utc>,

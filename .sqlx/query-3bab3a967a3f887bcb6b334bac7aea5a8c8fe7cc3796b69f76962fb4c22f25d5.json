@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT location_id,\n       owner_id,\n       character_id,\n       raffle_id,\n       ticket_count,\n       ticket_price,\n       type_id,\n       status as \"status: HypernetRaffleStatus\",\n       result as \"result: HypernetRaffleResult\",\n       created_at,\n       buy_price,\n       sell_price,\n       hypercore_buy_price,\n       hypercore_sell_price\nFROM hypernet_raffles\nWHERE raffle_id = $1;",
+  "query": "SELECT location_id,\n       owner_id,\n       character_id,\n       raffle_id,\n       ticket_count,\n       ticket_price,\n       type_id,\n       status as \"status: HypernetRaffleStatus\",\n       result as \"result: HypernetRaffleResult\",\n       created_at,\n       buy_price,\n       sell_price,\n       hypercore_buy_price,\n       hypercore_sell_price,\n       plex_price\nFROM hypernet_raffles\nWHERE raffle_id = $1;",
   "describe": {
     "columns": [
       {
@@ -94,6 +94,11 @@
         "ordinal": 13,
         "name": "hypercore_sell_price",
         "type_info": "Float8"
+      },
+      {
+        "ordinal": 14,
+        "name": "plex_price",
+        "type_info": "Float8"
       }
     ],
     "parameters": {
@@ -115,8 +120,9 @@
       true,
       true,
       true,
+      true,
       true
     ]
   },
-  "hash": "aca1cdbdc08dfbef67cd5b6f700cbc57c440d31fe2da27f91ae93ad502ab6bd0"
+  "hash": "3bab3a967a3f887bcb6b334bac7aea5a8c8fe7cc3796b69f76962fb4c22f25d5"
 }

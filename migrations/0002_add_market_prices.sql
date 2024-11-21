@@ -8,5 +8,6 @@ ALTER table hypernet_raffles
     ADD column hypercore_buy_price float8 null;
 ALTER table hypernet_raffles
     ADD column hypercore_sell_price float8 null;
-
+ALTER TABLE hypernet_raffles
+    ADD COLUMN plex_price float8 null;
 COMMIT TRANSACTION;

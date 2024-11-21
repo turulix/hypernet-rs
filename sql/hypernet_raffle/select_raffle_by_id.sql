@@ -11,6 +11,7 @@ SELECT location_id,
        buy_price,
        sell_price,
        hypercore_buy_price,
-       hypercore_sell_price
+       hypercore_sell_price,
+       plex_price
 FROM hypernet_raffles
 WHERE raffle_id = $1;
