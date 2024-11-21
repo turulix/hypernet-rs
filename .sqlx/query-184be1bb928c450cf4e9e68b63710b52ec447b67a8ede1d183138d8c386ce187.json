@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT location_id,\r\n       owner_id,\r\n       character_id,\r\n       raffle_id,\r\n       ticket_count,\r\n       ticket_price,\r\n       type_id,\r\n       status as \"status: HypernetRaffleStatus\",\r\n       result as \"result: HypernetRaffleResult\",\r\n       created_at\r\nFROM hypernet_raffles\r\nWHERE raffle_id = $1;",
+  "query": "SELECT location_id,\r\n       owner_id,\r\n       character_id,\r\n       raffle_id,\r\n       ticket_count,\r\n       ticket_price,\r\n       type_id,\r\n       status as \"status: HypernetRaffleStatus\",\r\n       result as \"result: HypernetRaffleResult\",\r\n       created_at,\r\n       buy_price,\r\n       sell_price,\r\n       hypercore_buy_price,\r\n       hypercore_sell_price\r\nFROM hypernet_raffles\r\nWHERE raffle_id = $1;",
   "describe": {
     "columns": [
       {
@@ -74,6 +74,26 @@
         "ordinal": 9,
         "name": "created_at",
         "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "buy_price",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 11,
+        "name": "sell_price",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 12,
+        "name": "hypercore_buy_price",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 13,
+        "name": "hypercore_sell_price",
+        "type_info": "Float8"
       }
     ],
     "parameters": {
@@ -91,8 +111,12 @@
       false,
       false,
       false,
-      false
+      false,
+      true,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "fe6604fc7c7fd8c850e4c4c0c3fe3332b90082be5a1416889c2957c6c0fa610f"
+  "hash": "184be1bb928c450cf4e9e68b63710b52ec447b67a8ede1d183138d8c386ce187"
 }

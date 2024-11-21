@@ -44,8 +44,36 @@ impl CronTask for CollectHypernetTask {
         .fetch_all(&ctx.postgres)
         .await?;
 
+        // Prices for each type_id, (sell, buy)
+        let mut prices: HashMap<i32, (Option<f64>, Option<f64>)> = HashMap::new();
+
+        let hypernet_core_orders = ctx
+            .esi
+            .group_market()
+            .get_region_orders(10000002, None, None, Some(52568))
+            .await?;
+
+        let hypernet_core_sell_price = hypernet_core_orders
+            .iter()
+            .filter(|x| !x.is_buy_order)
+            .map(|x| x.price)
+            .min_by(|a, b| a.partial_cmp(b).unwrap());
+
+        let hypernet_core_buy_price = hypernet_core_orders
+            .iter()
+            .filter(|x| x.is_buy_order)
+            .map(|x| x.price)
+            .max_by(|a, b| a.partial_cmp(b).unwrap());
+
         for char in all_chars {
-            let res = handle_character(&ctx, char).await;
+            let res = handle_character(
+                &ctx,
+                char,
+                &mut prices,
+                &hypernet_core_sell_price,
+                &hypernet_core_buy_price,
+            )
+            .await;
             if let Err(e) = res {
                 log::error!("Error handling character: {:?}", e);
             }
@@ -55,7 +83,13 @@ impl CronTask for CollectHypernetTask {
     }
 }
 
-async fn handle_character(ctx: &CronAppContext, char: EvECharacterInfo) -> anyhow::Result<()> {
+async fn handle_character(
+    ctx: &CronAppContext,
+    char: EvECharacterInfo,
+    price_cache: &mut HashMap<i32, (Option<f64>, Option<f64>)>,
+    hypernet_core_sell_price: &Option<f64>,
+    hypernet_core_buy_price: &Option<f64>,
+) -> anyhow::Result<()> {
     let mut esi = ctx.esi.clone();
     let notification_channel_id: Option<i64> = sqlx::query_file_scalar!(
         "./sql/notification_channel/select_channel_for_user.sql",
@@ -91,8 +125,44 @@ async fn handle_character(ctx: &CronAppContext, char: EvECharacterInfo) -> anyho
     let raffles_expired = parse_raffles(&raffles_expired, char.character_id)?;
     let raffles_finished = parse_raffles(&raffles_finished, char.character_id)?;
 
+    // Insert new raffles
     let mut transaction = ctx.postgres.begin().await?;
     for raffle in raffles_created.iter().cloned() {
+        let mut prices = price_cache.get(&raffle.type_id);
+        if prices.is_none() {
+            let orders = esi
+                .group_market()
+                .get_region_orders(
+                    10000002, // The Forge
+                    None,
+                    None,
+                    Some(raffle.type_id),
+                )
+                .await?;
+
+            let sell_orders = orders
+                .iter()
+                .filter(|x| !x.is_buy_order)
+                .collect::<Vec<_>>();
+            let buy_orders = orders.iter().filter(|x| x.is_buy_order).collect::<Vec<_>>();
+
+            let sell_price = sell_orders
+                .iter()
+                .filter(|x| x.location_id == 60003760) // Jita 4-4
+                .map(|x| x.price)
+                .min_by(|a, b| a.partial_cmp(b).unwrap());
+
+            let buy_price = buy_orders
+                .iter()
+                .filter(|x| x.location_id == 60003760) // Jita 4-4
+                .map(|x| x.price)
+                .max_by(|a, b| a.partial_cmp(b).unwrap());
+
+            price_cache.insert(raffle.type_id, (sell_price, buy_price));
+            prices = price_cache.get(&raffle.type_id);
+        }
+        let prices = prices.unwrap_or(&(None, None));
+
         let query = query_file!(
             "./sql/hypernet_raffle/insert_raffle.sql",
             raffle.location_id,
@@ -105,6 +175,10 @@ async fn handle_character(ctx: &CronAppContext, char: EvECharacterInfo) -> anyho
             raffle.status as HypernetRaffleStatus,
             raffle.result as HypernetRaffleResult,
             raffle.created_at,
+            prices.0,
+            prices.1,
+            hypernet_core_buy_price.clone(),
+            hypernet_core_sell_price.clone(),
         );
         transaction.execute(query).await?;
     }
@@ -141,7 +215,7 @@ async fn handle_character(ctx: &CronAppContext, char: EvECharacterInfo) -> anyho
         .collect::<Vec<_>>();
 
     for raffle_id in raffles_to_check {
-        let raffle: EvEHypernetRaffle = sqlx::query_file_as!(
+        let raffle: EvEHypernetRaffle = query_file_as!(
             EvEHypernetRaffle,
             "./sql/hypernet_raffle/select_raffle_by_id.sql",
             raffle_id
@@ -188,6 +262,7 @@ async fn handle_character(ctx: &CronAppContext, char: EvECharacterInfo) -> anyho
         }
     }
 
+    // Update raffle statuses
     let mut transaction = ctx.postgres.begin().await?;
     for raffle in raffles_expired {
         let query = query_file!(
@@ -234,8 +309,22 @@ async fn build_embed(
         ))
         .color(color)
         .field("Item", item.name, true)
-        .field("Marked Value (Sell)", "TODO", true)
-        .field("Marked Value (Buy)", "TODO", true)
+        .field(
+            "Marked Value (Sell)",
+            raffle
+                .sell_price
+                .map(|x| x.to_string())
+                .unwrap_or("Unknown".to_string()),
+            true,
+        )
+        .field(
+            "Marked Value (Buy)",
+            raffle
+                .buy_price
+                .map(|x| x.to_string())
+                .unwrap_or("Unknown".to_string()),
+            true,
+        )
         .field(
             "Ticket Count",
             raffle.ticket_count.separate_with_dots(),
@@ -308,6 +397,10 @@ fn parse_raffles(
             ticket_count,
             ticket_price,
             type_id,
+            buy_price: None,
+            sell_price: None,
+            hypercore_sell_price: None,
+            hypercore_buy_price: None,
             status: HypernetRaffleStatus::Created,
             result: HypernetRaffleResult::None,
             created_at: chrono::DateTime::from_str(&raffle.timestamp)?,
