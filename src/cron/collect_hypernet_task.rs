@@ -485,6 +485,7 @@ fn calculate_profit(raffle: &EvEHypernetRaffle, status: ProfitType) -> Option<f6
     Some(profit)
 }
 
+#[cfg(test)]
 mod tests {
     use crate::cron::collect_hypernet_task::calculate_profit;
     use crate::cron::collect_hypernet_task::ProfitType::{Loser, Winner};
