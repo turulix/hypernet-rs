@@ -327,6 +327,11 @@ async fn build_embed(
         HypernetRaffleStatus::Finished => Colour::from((0, 255, 0)),
         _ => Colour::from((255, 255, 255)),
     };
+    let profit_win = calculate_profit(raffle, Winner);
+    let profit_lose = calculate_profit(raffle, Loser);
+
+    let expected_value = (|| Some((profit_lose? + profit_win?) * 0.5))();
+
     Ok(CreateEmbed::new()
         .title(format!("Hypernet Raffle {}", current_status))
         .description(format!(
@@ -372,15 +377,22 @@ async fn build_embed(
             true,
         )
         .field(
-            "Estimated Profit (Win)",
-            calculate_profit(raffle, Winner)
+            "Profit (Win)",
+            profit_win
                 .map(|x| x.round().separate_with_dots())
                 .unwrap_or("Unknown".to_string()),
             true,
         )
         .field(
-            "Estimated Profit (Lose)",
-            calculate_profit(raffle, Loser)
+            "Profit (Lose)",
+            profit_lose
+                .map(|x| x.round().separate_with_dots())
+                .unwrap_or("Unknown".to_string()),
+            true,
+        )
+        .field(
+            "Expected Value",
+            expected_value
                 .map(|x| x.round().separate_with_dots())
                 .unwrap_or("Unknown".to_string()),
             true,
