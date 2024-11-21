@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT channel_id\nFROM eve_character_info\n         JOIN public.notification_channel_map ncm on eve_character_info.discord_user_id = ncm.discord_user_id\nWHERE eve_character_info.character_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "channel_id",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "31e0654490468f3c0c213a0acc3391552c55c6f31dfc1d087f143b683e1cf5f9"
+}

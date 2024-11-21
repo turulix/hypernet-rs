@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "INSERT INTO hypernet_raffles(location_id, owner_id, character_id, raffle_id, ticket_count, ticket_price, type_id,\r\n                             status, result, created_at, sell_price, buy_price, hypercore_buy_price,\r\n                             hypercore_sell_price)\r\nVALUES ($1,\r\n        $2,\r\n        $3,\r\n        $4,\r\n        $5,\r\n        $6,\r\n        $7,\r\n        $8,\r\n        $9,\r\n        $10,\r\n        $11,\r\n        $12,\r\n        $13,\r\n        $14)\r\non conflict do nothing;",
+  "query": "INSERT INTO hypernet_raffles(location_id, owner_id, character_id, raffle_id, ticket_count, ticket_price, type_id,\n                             status, result, created_at, sell_price, buy_price, hypercore_buy_price,\n                             hypercore_sell_price)\nVALUES ($1,\n        $2,\n        $3,\n        $4,\n        $5,\n        $6,\n        $7,\n        $8,\n        $9,\n        $10,\n        $11,\n        $12,\n        $13,\n        $14)\non conflict do nothing;",
   "describe": {
     "columns": [],
     "parameters": {
@@ -45,5 +45,5 @@
     },
     "nullable": []
   },
-  "hash": "de882989ac0c277cef70e041a15ea8af10a4f1fa2d1216386d047b2ac6da553f"
+  "hash": "1ae5e6a369adf78fdb30d08a967135e90cec3273e1f3123e7dfdf57786aa10c2"
 }

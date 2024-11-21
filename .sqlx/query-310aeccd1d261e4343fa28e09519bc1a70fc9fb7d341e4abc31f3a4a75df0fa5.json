@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO notification_channel_map (discord_user_id, channel_id)\nVALUES ($1, $2)\non conflict (discord_user_id) do update set channel_id = excluded.channel_id;",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "310aeccd1d261e4343fa28e09519bc1a70fc9fb7d341e4abc31f3a4a75df0fa5"
+}

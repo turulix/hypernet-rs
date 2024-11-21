@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE auth_requests\nSET esi_state = NULL\nWHERE esi_state = $1 AND discord_user_id = $2;",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ebd0ee44b6dec7106f7b663c97dac8b218c9897de5faf572e457b1d685cf8a7e"
+}

@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO eve_character_info(character_id, discord_user_id, character_name, refresh_token)\nvalues ($1, $2, $3, $4)\nON CONFLICT (character_id) DO UPDATE SET discord_user_id = $2,\n                                         character_name  = $3,\n                                         refresh_token   = $4;",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int8",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f31139fcd445913013bad2299ac53c249d077034e020a967391b2f926bfe5b0b"
+}
