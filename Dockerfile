@@ -7,7 +7,7 @@ COPY . /app
 COPY ./.sqlx /app/.sqlx
 WORKDIR /app
 
-RUN ls
+RUN ls -la
 
 ENV SQLX_OFFLINE=true
 
