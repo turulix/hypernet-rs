@@ -1,6 +1,6 @@
 mod collect_hypernet_task;
 
-use crate::context::{AppContext, CronAppContext};
+use crate::context::CronAppContext;
 use crate::cron::collect_hypernet_task::CollectHypernetTask;
 use async_trait::async_trait;
 use tokio::task::JoinSet;

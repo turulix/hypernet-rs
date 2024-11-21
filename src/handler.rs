@@ -4,12 +4,10 @@ use crate::database::hypernet_raffle_model::{
     EvEHypernetRaffle, HypernetRaffleResult, HypernetRaffleStatus,
 };
 use log::info;
-use serenity::all::ComponentType::Button;
 use serenity::all::{
     ActivityData, ButtonStyle, Color, ComponentInteractionDataKind, Context, CreateActionRow,
-    CreateButton, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseFollowup,
-    CreateInteractionResponseMessage, Embed, EventHandler, FullEvent, Interaction, InteractionType,
-    Ready,
+    CreateButton, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
+    FullEvent, InteractionType,
 };
 
 pub async fn event_handler(

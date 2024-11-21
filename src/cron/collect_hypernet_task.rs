@@ -1,4 +1,4 @@
-use crate::context::{AppContext, CronAppContext};
+use crate::context::CronAppContext;
 use crate::cron::CronTask;
 use crate::database::eve_character_info::EvECharacterInfo;
 use crate::database::hypernet_raffle_model::{
@@ -6,12 +6,11 @@ use crate::database::hypernet_raffle_model::{
 };
 use anyhow::anyhow;
 use async_trait::async_trait;
-use log::{debug, info};
+use log::{debug, warn};
 use rfesi::groups::Notification;
 use rfesi::prelude::Esi;
 use serenity::all::{
     ButtonStyle, ChannelId, Colour, CreateButton, CreateEmbed, CreateEmbedFooter, CreateMessage,
-    Embed,
 };
 use serenity::builder::CreateActionRow;
 use sqlx::{query_file, query_file_as, Executor};
@@ -47,11 +46,19 @@ impl CronTask for CollectHypernetTask {
         // Prices for each type_id, (sell, buy)
         let mut prices: HashMap<i32, (Option<f64>, Option<f64>)> = HashMap::new();
 
-        let hypernet_core_orders = ctx
-            .esi
-            .group_market()
-            .get_region_orders(10000002, None, None, Some(52568))
-            .await?;
+        let hypernet_core_orders = loop {
+            let hypernet_core_orders = ctx
+                .esi
+                .group_market()
+                .get_region_orders(10000002, None, None, Some(52568))
+                .await;
+
+            if let Ok(orders) = hypernet_core_orders {
+                break orders;
+            } else {
+                warn!("Error fetching orders for Hypercore. Retrying...");
+            }
+        };
 
         let hypernet_core_sell_price = hypernet_core_orders
             .iter()
@@ -130,15 +137,26 @@ async fn handle_character(
     for raffle in raffles_created.iter().cloned() {
         let mut prices = price_cache.get(&raffle.type_id);
         if prices.is_none() {
-            let orders = esi
-                .group_market()
-                .get_region_orders(
-                    10000002, // The Forge
-                    None,
-                    None,
-                    Some(raffle.type_id),
-                )
-                .await?;
+            let orders = loop {
+                let orders = esi
+                    .group_market()
+                    .get_region_orders(
+                        10000002, // The Forge
+                        None,
+                        None,
+                        Some(raffle.type_id),
+                    )
+                    .await;
+
+                if let Ok(orders) = orders {
+                    break orders;
+                } else {
+                    warn!(
+                        "Error fetching orders for type_id: {}. Retrying...",
+                        raffle.type_id
+                    );
+                }
+            };
 
             let sell_orders = orders
                 .iter()
@@ -313,7 +331,7 @@ async fn build_embed(
             "Marked Value (Sell)",
             raffle
                 .sell_price
-                .map(|x| x.to_string())
+                .map(|x| x.separate_with_dots())
                 .unwrap_or("Unknown".to_string()),
             true,
         )
@@ -321,7 +339,7 @@ async fn build_embed(
             "Marked Value (Buy)",
             raffle
                 .buy_price
-                .map(|x| x.to_string())
+                .map(|x| x.separate_with_dots())
                 .unwrap_or("Unknown".to_string()),
             true,
         )
@@ -408,4 +426,9 @@ fn parse_raffles(
     }
 
     Ok(raffs)
+}
+
+fn calculate_profit(raffle: &EvEHypernetRaffle) -> f64 {
+    // Formular: Required_Cores = floor(Payout / (2 * Plex Price))
+    todo!("Calculate profit")
 }
