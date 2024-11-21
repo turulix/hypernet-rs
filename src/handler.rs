@@ -136,7 +136,7 @@ pub async fn event_handler(
                                         CreateInteractionResponseMessage::new()
                                             .embeds(edited_embeds)
                                             .components(vec![CreateActionRow::Buttons(
-                                                create_disabled_raffle_buttons(&raffle_id),
+                                                create_disabled_raffle_buttons(raffle_id),
                                             )]),
                                     ),
                                 )

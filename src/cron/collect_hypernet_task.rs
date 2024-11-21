@@ -1,4 +1,5 @@
 use crate::context::CronAppContext;
+use crate::cron::collect_hypernet_task::ProfitType::{Loser, Winner};
 use crate::cron::CronTask;
 use crate::database::eve_character_info::EvECharacterInfo;
 use crate::database::hypernet_raffle_model::{
@@ -77,9 +78,8 @@ impl CronTask for CollectHypernetTask {
             .get_market_prices()
             .await?
             .iter()
-            .find(|x| x.type_id == 44992)
-            .map(|x| x.average_price)
-            .flatten();
+            .find(|x| x.type_id == 44992) // PLEX
+            .and_then(|x| x.average_price);
 
         for char in all_chars {
             let res = handle_character(
@@ -371,8 +371,20 @@ async fn build_embed(
             (raffle.ticket_count as f64 * raffle.ticket_price * 0.95_f64).separate_with_dots(),
             true,
         )
-        .field("Estimated Profit (Win)", "TODO", true)
-        .field("Estimated Profit (Lose)", "TODO", true)
+        .field(
+            "Estimated Profit (Win)",
+            calculate_profit(raffle, Winner)
+                .map(|x| x.round().separate_with_dots())
+                .unwrap_or("Unknown".to_string()),
+            true,
+        )
+        .field(
+            "Estimated Profit (Lose)",
+            calculate_profit(raffle, Loser)
+                .map(|x| x.round().separate_with_dots())
+                .unwrap_or("Unknown".to_string()),
+            true,
+        )
         .footer(CreateEmbedFooter::new(format!(
             "RaffleID: {}",
             raffle.raffle_id
@@ -441,7 +453,71 @@ fn parse_raffles(
     Ok(raffs)
 }
 
-fn calculate_profit(raffle: &EvEHypernetRaffle) -> f64 {
-    // Formular: Required_Cores = floor(Payout / (2 * Plex Price))
-    todo!("Calculate profit")
+enum ProfitType {
+    Winner,
+    Loser,
+}
+
+fn calculate_profit(raffle: &EvEHypernetRaffle, status: ProfitType) -> Option<f64> {
+    let item_value = raffle.ticket_count as f64 * raffle.ticket_price;
+    let payout = item_value * 0.95; // 95% of the total ticket price. 5% because of tax.
+    let plex_price = raffle.plex_price?;
+    let required_cores = (item_value / (2.0 * plex_price)).floor();
+
+    // If we win, we get the item back and the payout. But we spend 50% of the item_value on tickets
+    // If we lose, we get nothing back. But we spend 50% of the item_value on tickets
+    let profit = match status {
+        ProfitType::Winner => {
+            let total_income = raffle.buy_price? + payout;
+            let total_expense = raffle.sell_price?
+                + (required_cores * raffle.hypercore_sell_price?)
+                + 0.5 * item_value;
+            total_income - total_expense
+        }
+        ProfitType::Loser => {
+            let total_expense = raffle.sell_price?
+                + (required_cores * raffle.hypercore_sell_price?)
+                + 0.5 * item_value;
+            payout - total_expense
+        }
+    };
+
+    Some(profit)
+}
+
+mod tests {
+    use crate::cron::collect_hypernet_task::calculate_profit;
+    use crate::cron::collect_hypernet_task::ProfitType::{Loser, Winner};
+    use crate::database::hypernet_raffle_model::{
+        EvEHypernetRaffle, HypernetRaffleResult, HypernetRaffleStatus,
+    };
+
+    #[tokio::test]
+    async fn calculate_profit_test() {
+        let raffle = EvEHypernetRaffle {
+            owner_id: 1,
+            character_id: 1,
+            location_id: 1,
+            raffle_id: "1".to_string(),
+            ticket_count: 8,
+            ticket_price: 10307323.0,
+            type_id: 1,
+            buy_price: Some(54730000.0),
+            sell_price: Some(58430000.0),
+            hypercore_buy_price: Some(304000.0),
+            hypercore_sell_price: Some(327600.0),
+            plex_price: Some(5736785.34),
+            status: HypernetRaffleStatus::Created,
+            result: HypernetRaffleResult::None,
+            created_at: chrono::Utc::now(),
+        };
+
+        let profit = calculate_profit(&raffle, Winner).unwrap();
+        dbg!(profit);
+        assert!(profit > 0.0);
+
+        let profit = calculate_profit(&raffle, Loser).unwrap();
+        dbg!(profit);
+        assert!(profit < 0.0);
+    }
 }
