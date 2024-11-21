@@ -5,10 +5,9 @@ RUN rustup-init -t x86_64-unknown-linux-musl --default-toolchain nightly --profi
 
 COPY . /app
 COPY ./.sqlx /app/.sqlx
+WORKDIR /app
 
 RUN ls
-
-WORKDIR /app
 
 ENV SQLX_OFFLINE=true
 
