@@ -481,13 +481,13 @@ fn calculate_profit(raffle: &EvEHypernetRaffle, status: ProfitType) -> Option<f6
     let profit = match status {
         ProfitType::Winner => {
             let total_income = raffle.buy_price? + payout;
-            let total_expense = raffle.sell_price?
+            let total_expense = raffle.buy_price?
                 + (required_cores * raffle.hypercore_sell_price?)
                 + 0.5 * item_value;
             total_income - total_expense
         }
         ProfitType::Loser => {
-            let total_expense = raffle.sell_price?
+            let total_expense = raffle.buy_price?
                 + (required_cores * raffle.hypercore_sell_price?)
                 + 0.5 * item_value;
             payout - total_expense
