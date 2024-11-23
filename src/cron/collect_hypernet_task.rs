@@ -238,6 +238,8 @@ async fn handle_character(
         .cloned()
         .collect();
 
+    //TODO: We should fetch the DB raffles to ensure its not already finished.
+
     // Raffles to check
     let raffles_to_check = newly_expired_raffle_ids
         .union(&newly_finished_raffle_ids)
