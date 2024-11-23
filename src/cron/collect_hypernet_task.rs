@@ -37,7 +37,7 @@ impl CronTask for CollectHypernetTask {
     }
 
     async fn run(&self, ctx: CronAppContext) -> anyhow::Result<()> {
-        let all_chars: Vec<EvECharacterInfo> = sqlx::query_file_as!(
+        let all_chars: Vec<EvECharacterInfo> = query_file_as!(
             EvECharacterInfo,
             "./sql/eve_character/select_all_characters.sql"
         )
@@ -373,7 +373,7 @@ async fn build_embed(
         .field(
             "Payout",
             // 95% of the total ticket price. 5% because of tax.
-            (raffle.ticket_count as f64 * raffle.ticket_price * 0.95_f64).separate_with_dots(),
+            (raffle.ticket_count as f64 * raffle.ticket_price * 0.95_f64).round().separate_with_dots(),
             true,
         )
         .field(
@@ -407,7 +407,7 @@ fn parse_raffles(
     raffles: &[&Notification],
     char_id: i32,
 ) -> Result<Vec<EvEHypernetRaffle>, anyhow::Error> {
-    let mut raffs: Vec<EvEHypernetRaffle> = vec![];
+    let mut eve_raffles: Vec<EvEHypernetRaffle> = vec![];
     for raffle in raffles.iter() {
         let text = raffle.text.as_ref().unwrap();
         let parts: HashMap<String, String> = text
@@ -443,7 +443,7 @@ fn parse_raffles(
             .ok_or(anyhow!("Missing type_id"))?
             .parse::<i32>()?;
 
-        raffs.push(EvEHypernetRaffle {
+        eve_raffles.push(EvEHypernetRaffle {
             location_id,
             owner_id,
             character_id: char_id,
@@ -462,7 +462,7 @@ fn parse_raffles(
         });
     }
 
-    Ok(raffs)
+    Ok(eve_raffles)
 }
 
 enum ProfitType {
@@ -479,14 +479,14 @@ fn calculate_profit(raffle: &EvEHypernetRaffle, status: ProfitType) -> Option<f6
     // If we win, we get the item back and the payout. But we spend 50% of the item_value on tickets
     // If we lose, we get nothing back. But we spend 50% of the item_value on tickets
     let profit = match status {
-        ProfitType::Winner => {
+        Winner => {
             let total_income = raffle.buy_price? + payout;
             let total_expense = raffle.buy_price?
                 + (required_cores * raffle.hypercore_sell_price?)
                 + 0.5 * item_value;
             total_income - total_expense
         }
-        ProfitType::Loser => {
+        Loser => {
             let total_expense = raffle.buy_price?
                 + (required_cores * raffle.hypercore_sell_price?)
                 + 0.5 * item_value;
