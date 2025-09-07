@@ -9,7 +9,7 @@ serenity = { version = "0.12.2", features = ["full"] }
 log = "0.4.22"
 env_logger = "0.11.5"
 poise = "0.6.1"
-rfesi = { version = "0.45.1", features = ["rustls-tls", "validate_jwt", "random_state"], default-features = false }
+rfesi = { version = "0.49.0", features = ["rustls-tls", "validate_jwt", "random_state"], default-features = false }
 sqlx = { version = "0.8.2", features = ["postgres", "runtime-tokio-rustls", "chrono", "bigdecimal"] }
 chrono = { version = "0.4.38", features = ["serde"] }
 serde = { version = "1.0.198", features = ["derive"] }
@@ -19,3 +19,4 @@ actix-web = "4.9.0"
 rand = "0.8.5"
 async-trait = "0.1.83"
 thousands = "0.2.0"
+reqwest = "0.12.23"

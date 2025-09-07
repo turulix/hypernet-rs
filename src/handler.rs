@@ -4,6 +4,7 @@ use crate::database::hypernet_raffle_model::{
     EvEHypernetRaffle, HypernetRaffleResult, HypernetRaffleStatus,
 };
 use log::info;
+use serde_json::json;
 use serenity::all::{
     ActivityData, ButtonStyle, Color, ComponentInteractionDataKind, Context, CreateActionRow,
     CreateButton, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
@@ -150,12 +151,19 @@ pub async fn event_handler(
                                 )
                                 .await?;
                         } else if interaction.data.custom_id.starts_with("open-market:") {
-                            esi.group_user_interface()
-                                .open_market_details_window(
-                                    character_info.character_id as u64,
-                                    raffle.type_id,
-                                )
-                                .await?;
+                            let http_client = reqwest::Client::new();
+
+                            let request = http_client
+                                .post("https://esi.evetech.net/ui/openwindow/marketdetails")
+                                .bearer_auth(esi.access_token.unwrap_or("".to_string()))
+                                .query(&json!({
+                                    "type_id": raffle.type_id,
+                                }))
+                                .header("X-Compatibility-Date", "2025-08-26");
+
+                            let res = request.send().await?;
+                            res.error_for_status()?;
+
                             interaction
                                 .create_response(&ctx, CreateInteractionResponse::Acknowledge)
                                 .await?;
