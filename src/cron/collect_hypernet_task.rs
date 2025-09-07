@@ -375,7 +375,9 @@ async fn build_embed(
         .field(
             "Payout",
             // 95% of the total ticket price. 5% because of tax.
-            (raffle.ticket_count as f64 * raffle.ticket_price * 0.95_f64).round().separate_with_dots(),
+            (raffle.ticket_count as f64 * raffle.ticket_price * 0.95_f64)
+                .round()
+                .separate_with_dots(),
             true,
         )
         .field(

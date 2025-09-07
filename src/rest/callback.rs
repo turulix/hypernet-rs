@@ -4,8 +4,8 @@ use actix_web::http::StatusCode;
 use actix_web::{get, web, HttpResponse, HttpResponseBuilder};
 use log::error;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 use sqlx::query_file;
+use std::str::FromStr;
 
 #[derive(Deserialize, Serialize, Debug)]
 struct QueryParams {
@@ -91,7 +91,10 @@ async fn callback(
         "./sql/auth_requests/remove_esi_state.sql",
         esi_state,
         &discord_id
-    ).execute(&ctx.postgres).await.map_err(|e| {
+    )
+    .execute(&ctx.postgres)
+    .await
+    .map_err(|e| {
         error!("Error removing ESI state: {:?}", e);
         ApiError::new_with_title(
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -106,7 +109,10 @@ async fn callback(
         discord_id,
         char_name,
         refresh_token
-    ).execute(&ctx.postgres).await.map_err(|e| {
+    )
+    .execute(&ctx.postgres)
+    .await
+    .map_err(|e| {
         error!("Error inserting character info: {:?}", e);
         ApiError::new_with_title(
             StatusCode::INTERNAL_SERVER_ERROR,

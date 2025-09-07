@@ -29,12 +29,17 @@ pub async fn event_handler(
                 if let ComponentInteractionDataKind::Button = interaction.data.kind {
                     if interaction.data.custom_id.starts_with("raffle-won:")
                         || interaction.data.custom_id.starts_with("raffle-lost:")
+                        || interaction.data.custom_id.starts_with("open-market:")
                     {
                         // Handle the win of a raffle
                         let raffle_id = if interaction.data.custom_id.starts_with("raffle-won:") {
                             &interaction.data.custom_id["raffle-won:".len()..]
-                        } else {
+                        } else if interaction.data.custom_id.starts_with("raffle-lost:") {
                             &interaction.data.custom_id["raffle-lost:".len()..]
+                        } else if interaction.data.custom_id.starts_with("open-market:") {
+                            &interaction.data.custom_id["open-market:".len()..]
+                        } else {
+                            unreachable!()
                         };
 
                         let raffle: EvEHypernetRaffle = sqlx::query_file_as!(
@@ -71,6 +76,9 @@ pub async fn event_handler(
                             return Ok(());
                         }
 
+                        let mut esi = data.esi.clone();
+                        esi.use_refresh_token(&character_info.refresh_token).await?;
+
                         if interaction.data.custom_id.starts_with("raffle-won:") {
                             sqlx::query_file!(
                                 "./sql/hypernet_raffle/update_result.sql",
@@ -106,7 +114,7 @@ pub async fn event_handler(
                                     ),
                                 )
                                 .await?;
-                        } else {
+                        } else if interaction.data.custom_id.starts_with("raffle-lost:") {
                             sqlx::query_file!(
                                 "./sql/hypernet_raffle/update_result.sql",
                                 raffle_id,
@@ -141,6 +149,27 @@ pub async fn event_handler(
                                     ),
                                 )
                                 .await?;
+                        } else if interaction.data.custom_id.starts_with("open-market:") {
+                            esi.group_user_interface()
+                                .open_market_details_window(
+                                    character_info.character_id as u64,
+                                    raffle.type_id,
+                                )
+                                .await?;
+                            interaction
+                                .create_response(&ctx, CreateInteractionResponse::Acknowledge)
+                                .await?;
+                        } else {
+                            interaction
+                                .create_response(
+                                    &ctx,
+                                    CreateInteractionResponse::Message(
+                                        CreateInteractionResponseMessage::new()
+                                            .ephemeral(true)
+                                            .content("Unknown action."),
+                                    ),
+                                )
+                                .await?;
                         }
                     }
                 }
@@ -161,5 +190,6 @@ fn create_disabled_raffle_buttons(raffle_id: &str) -> Vec<CreateButton> {
             .label("Lost Raffle")
             .style(ButtonStyle::Danger)
             .disabled(true),
+        CreateButton::new("open-market:".to_string() + raffle_id).style(ButtonStyle::Primary),
     ]
 }

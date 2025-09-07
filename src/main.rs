@@ -1,5 +1,3 @@
-#![feature(async_drop)]
-
 mod commands;
 mod context;
 mod cron;
@@ -11,7 +9,7 @@ use crate::commands::change_notification_channel::change_notification_channel;
 use crate::commands::help::help;
 use crate::context::{AppContext, CronAppContext};
 use crate::cron::start_cron;
-use crate::handler::{event_handler};
+use crate::handler::event_handler;
 use actix_web::{web, App, HttpServer};
 use commands::auth::auth;
 use commands::register::register;

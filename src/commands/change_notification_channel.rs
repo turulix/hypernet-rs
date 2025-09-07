@@ -9,9 +9,13 @@ pub async fn change_notification_channel(
 ) -> Result<(), Error> {
     let user_id = ctx.author().id.get() as i64;
     let channel_id = channel.map(|c| c.get() as i64);
-    sqlx::query_file!("./sql/notification_channel/update_notification_channel.sql", user_id, channel_id)
-        .execute(&ctx.data().postgres)
-        .await?;
+    sqlx::query_file!(
+        "./sql/notification_channel/update_notification_channel.sql",
+        user_id,
+        channel_id
+    )
+    .execute(&ctx.data().postgres)
+    .await?;
 
     let selected_channel = match channel {
         Some(c) => c.mention().to_string(),
