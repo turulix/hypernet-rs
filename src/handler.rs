@@ -190,6 +190,8 @@ fn create_disabled_raffle_buttons(raffle_id: &str) -> Vec<CreateButton> {
             .label("Lost Raffle")
             .style(ButtonStyle::Danger)
             .disabled(true),
-        CreateButton::new("open-market:".to_string() + raffle_id).style(ButtonStyle::Primary),
+        CreateButton::new("open-market:".to_string() + raffle_id)
+            .label("Open Market")
+            .style(ButtonStyle::Primary),
     ]
 }
