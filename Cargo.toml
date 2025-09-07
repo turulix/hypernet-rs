@@ -15,7 +15,7 @@ chrono = { version = "0.4.38", features = ["serde"] }
 serde = { version = "1.0.198", features = ["derive"] }
 serde_json = {version = "1.0.132"}
 anyhow = "1.0.93"
-actix-web = "4.9.0"
+actix-web = {version = "4.9.0", features = ["rustls"]}
 rand = "0.8.5"
 async-trait = "0.1.83"
 thousands = "0.2.0"
